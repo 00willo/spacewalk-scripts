@@ -28,6 +28,30 @@ except socket.error as (err, strerr):
         print('Seems like your hostname is incorrect.')
     sys.exit()
 
+#list = client.user.list_users(key)
+#for user in list:
+#    print user.get('login')
+
+#ver = client.api.get_api_namespace_call_list(key,'api')
+#ver = client.api.get_api_namespaces(key)
+#ver = client.api.getApiNamespaces(key)
+#print ver
+
+#list = client.schedule.listInProgressActions(key)
+#for action in list:
+#    print action.get('id')
+#    print action.get('name')
+#    print action.get('type')
+#    print action.get('scheduler')
+#    print action.get('earliest')
+#    print
+
+# These next couple commented don't work
+#ver = client.api.get_version(key)
+#ver = client.api.getversion(key)
+
+#print ver
+
 list = client.taskomatic.listActiveSatSchedules(key)
 print list
 
