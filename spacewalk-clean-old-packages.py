@@ -70,8 +70,10 @@ for channel in list:
 
 
   # extract all packages in channel
+  print('### Getting list of all packages from channel')
   all_array = client.channel.software.listAllPackages(key, channel.get('label'))
   # extract latest packages in channel
+  print('### Getting list of latest packages from channel')
   lst_array = client.channel.software.listLatestPackages(key, channel.get('label'))
 
 
@@ -82,18 +84,21 @@ for channel in list:
   # create a unique string to define a package, exemple:  java-1.6.0-sun-jdbc%1.6.0.31%1jpp.1.el6_2%58920
   for pkg in all_array:
     all_pkg = all_pkg + (pkg.get('name') + '%' + pkg.get('version') + '%' + pkg.get('release') + '%' + str(pkg.get('id')),)
-
+  print('Packages in channel: {}').format(str(len(all_pkg)))
+  
   for pkg in lst_array:
     lst_pkg = lst_pkg + (pkg.get('name') + '%' + pkg.get('version') + '%' + pkg.get('release') + '%' + str(pkg.get('id')),)
 
 
   # diff the two lists to find obsolete packages
+  print('### Determining list of obsolete packages')
   old_pkg = set(all_pkg) - set(lst_pkg)
 
   del_pkg = 0
 
   # if we have found obsolete packages
   if len(old_pkg) > 0:
+    print('### Processing list of obsolete packages')
     for pkg in old_pkg:
       pkg_params = string.split(pkg, '%')
       # check if the old package is installed on a managed client
@@ -107,7 +112,9 @@ for channel in list:
         del_pkg += 1
 
   all_del_pkg += del_pkg
-  print('all: {0}, latest: {1}, old: {2}, deleted: {3}').format(str(len(all_pkg)), str(len(lst_pkg)), str(len(old_pkg)), str(del_pkg))
+
+  print('\nChannel cleanup summary')
+  print('all: {0}, latest: {1}, old: {2}, deleted: {3}\n').format(str(len(all_pkg)), str(len(lst_pkg)), str(len(old_pkg)), str(del_pkg))
 
 
 # Delete rpm files on disk
