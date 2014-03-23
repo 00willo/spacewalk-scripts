@@ -27,29 +27,31 @@
 import xmlrpclib
 import string
 import os
+import socket
+import sys
 
 # CONFIG
 ## URL of Spacewalk XML RPC server
-SPACEWALK_URL = "http://SPACEWALK-SRV/rpc/api"
+SPACEWALK_URL = 'http://SPACEWALK-SRV/rpc/api'
 ## User with Org Admin role (required to delete package in Spacewalk)
-SPACEWALK_USERNAME = "XXXX"
-SPACEWALK_PASSWORD = "YYYY"
+SPACEWALK_USERNAME = 'XXXX'
+SPACEWALK_PASSWORD = 'YYYY'
 
 # Set to 1 to see the XML and more
 VERBOSE_LEVEL = 0
 
 # Open connection to XML RPC server
 client = xmlrpclib.Server(SPACEWALK_URL, verbose=VERBOSE_LEVEL)
-print('Attempting to connect to %s') % SPACEWALK_URL
+print('Attempting to connect to {}').format(SPACEWALK_URL)
 try:
     key = client.auth.login(SPACEWALK_USERNAME, SPACEWALK_PASSWORD)
-    print 'Login succeeded'
+    print('Login succeeded')
 except xmlrpclib.Fault as e:
-    print 'Failed Login'
-    print "ERROR: Code:{0}.  String:{1}".format(err, strerr)
+    print('Failed Login')
+    print('ERROR Code: {0}\tString: {1}').format(err, strerr)
     sys.exit()
 except socket.error as (err, strerr):
-    print('ERROR: Code:{0}.  String:{1}').format(err, strerr)
+    print('ERROR Code: {0}\tString: {1}').format(err, strerr)
     if err == 8:
         print('Seems like your hostname is incorrect.')
     sys.exit()
@@ -61,7 +63,10 @@ all_del_pkg = 0
 
 # For each channel
 for channel in list:
-  print "################\n" + channel.get('label')
+  print('################')
+  print('{}').format(channel.get('label'))
+  print('################')
+
 
   # extract all packages in channel
   all_array = client.channel.software.listAllPackages(key, channel.get('label'))
@@ -96,18 +101,20 @@ for channel in list:
       # if this package is not installed on a managed client
       if len(systems) == 0:
         # delete the package
-        print pkg_params[0] + '-' + pkg_params[1]
+        print('{0}-{1}').format(pkg_params[0], pkg_params[1])
         client.packages.removePackage(key, int(pkg_params[3]))
         del_pkg += 1
 
   all_del_pkg += del_pkg
-  print "all: " + str(len(all_pkg)) + ", latest: " + str(len(lst_pkg)) + ", old: " + str(len(old_pkg)) + ", deleted: " + str(del_pkg)
+  print('all: {0}, latest: {1}, old: {2}, deleted: {3}').format(str(len(all_pkg)), str(len(lst_pkg)), str(len(old_pkg)), str(del_pkg))
 
 
 # Delete rpm files on disk
 if all_del_pkg > 0:
-  print "################\n\n\nClean RPM files\n"
+  print('################\n\n')
+  print('Cleaning up RPM files from filesystem')
   os.system('spacewalk-data-fsck -r -S -C -O')
 
+print('Closing connection to {}').format(SPACEWALK_URL)
 # disconnect
 client.auth.logout(key)
