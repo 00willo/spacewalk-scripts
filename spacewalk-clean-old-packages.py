@@ -46,9 +46,10 @@ print('Attempting to connect to {}').format(SPACEWALK_URL)
 try:
     key = client.auth.login(SPACEWALK_USERNAME, SPACEWALK_PASSWORD)
     print('Login succeeded')
-except xmlrpclib.Fault as e:
+except xmlrpclib.Fault as err:
     print('Failed Login')
-    print('ERROR Code: {0}\tString: {1}').format(err, strerr)
+    print('ERROR code: {}').format(err.faultCode)
+    print('Message: {}').format(err.faultString)
     sys.exit()
 except socket.error as (err, strerr):
     print('ERROR Code: {0}\tString: {1}').format(err, strerr)
